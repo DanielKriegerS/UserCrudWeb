@@ -1,12 +1,14 @@
 package com.danielks.UserCrud.controller;
 
-import com.danielks.UserCrud.entity.User;
+import com.danielks.UserCrud.model.UserDTO;
 import com.danielks.UserCrud.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,38 +22,50 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> userDTOList = userService.getAllUsers().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userDTOList);
+    }
+
+    private UserDTO convertToDTO(UserDTO userDTO) {
+        UserDTO convertedUserDTO = new UserDTO();
+        convertedUserDTO.setId(userDTO.getId());
+        convertedUserDTO.setName(userDTO.getName());
+        convertedUserDTO.setPhone(userDTO.getPhone());
+        return convertedUserDTO;
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable long userId) {
-        return userService.getUserById(userId);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable long userId) {
+        UserDTO userDTO = userService.getUserDTOById(userId);
+        if (userDTO != null) {
+            return ResponseEntity.ok(userDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.save(user);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+        UserDTO createdUserDTO = userService.saveUserDTO(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUserDTO);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable long userId, @RequestBody User user) {
-        User existingUser = userService.getUserById(userId);
-
-        if (existingUser != null) {
-            existingUser.setName(user.getName());
-            existingUser.setPhone(user.getPhone());
-
-            User savedUser = userService.save(existingUser);
-
-            return ResponseEntity.ok(savedUser);
+    public ResponseEntity<UserDTO> updateUser(@PathVariable long userId, @RequestBody UserDTO userDTO) {
+        UserDTO updatedUserDTO = userService.updateUserDTO(userId, userDTO);
+        if (updatedUserDTO != null) {
+            return ResponseEntity.ok(updatedUserDTO);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable long userId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable long userId) {
         userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
     }
 }

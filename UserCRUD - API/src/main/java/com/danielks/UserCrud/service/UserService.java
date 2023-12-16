@@ -1,12 +1,16 @@
 package com.danielks.UserCrud.service;
 
 import com.danielks.UserCrud.entity.User;
+import com.danielks.UserCrud.model.UserDTO;
 import com.danielks.UserCrud.repository.UserRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -17,29 +21,48 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public UserDTO saveUserDTO(UserDTO userDTO) {
+        User user = convertToEntity(userDTO);
+        User savedUser = userRepository.save(user);
+        return convertToDTO(savedUser);
     }
 
-    public ResponseEntity<List<User>> getAllUsers() {
-        List <User> result = userRepository.findAll();
-        return ResponseEntity.ok(result);
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public User getUserById(long userId) {
-        return userRepository.findById(userId).orElse(null);
+    public UserDTO getUserDTOById(long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        return userOptional.map(this::convertToDTO).orElse(null);
     }
 
-    public boolean deleteUser(long userId) {
-        try {
-            userRepository.deleteById(userId);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public void deleteUser(long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    public UserDTO updateUserDTO(long userId, UserDTO userDTO) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User userToUpdate = optionalUser.get();
+            BeanUtils.copyProperties(convertToEntity(userDTO), userToUpdate, "id");
+            User updatedUser = userRepository.save(userToUpdate);
+            return convertToDTO(updatedUser);
         }
+        return null;
     }
-    public void update(User user) {
-        userRepository.save(user);
+
+    private User convertToEntity(UserDTO userDTO) {
+        User user = new User();
+        BeanUtils.copyProperties(userDTO, user);
+        return user;
+    }
+
+    private UserDTO convertToDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+        return userDTO;
     }
 }
