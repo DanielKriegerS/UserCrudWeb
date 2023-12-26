@@ -1,0 +1,27 @@
+<div class="container">
+  <header class="user-header">
+    <h2>Detalhes do Usuário</h2>
+  </header>
+  <div *ngIf="user" class="user-details">
+    <p>ID: {{ user.id }}</p>
+    <p>
+      Nome:
+      <span *ngIf="!editingMode; else editName">{{ user.name }}</span>
+      <ng-template #editName>
+        <input type="text" [(ngModel)]="user.name">
+      </ng-template>
+    </p>
+    <p>
+      Telefone:
+      <span *ngIf="!editingMode; else editPhone">{{ user.phone }}</span>
+      <ng-template #editPhone>
+        <input type="text" [(ngModel)]="user.phone">
+      </ng-template>
+    </p>
+
+    <div class="user-buttons">
+      <button class="btn-delete" (click)="onDelete(user.id)">Deletar</button>
+      <button class="btn-update" (click)="onUpdate(user)"> {{ editingMode ? 'Salvar' : 'Atualizar' }}</button>
+    </div>
+  </div>
+</div>
