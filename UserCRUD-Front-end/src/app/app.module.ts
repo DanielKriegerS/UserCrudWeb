@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from '../app-routing-module'; 
 import { UserListComponent } from '../components/user-list/user-list.component';
 import { UserDetailsComponent } from '../components/user-details/user-details.component';
+import { ReturnButtonComponent } from '../components/return-button/return-button.component';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 
@@ -12,7 +13,8 @@ import { FormsModule } from '@angular/forms';
   declarations: [ 
     AppComponent,
     UserListComponent,
-    UserDetailsComponent
+    UserDetailsComponent,
+    ReturnButtonComponent
   ],
   imports: [
     CommonModule,

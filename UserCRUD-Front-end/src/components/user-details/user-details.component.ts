@@ -9,7 +9,7 @@ import { User } from '../../models/user.model';
   styleUrls: ['./user-details.component.css']
 })
 export class UserDetailsComponent implements OnInit {
-  user: User | undefined;
+  user!: User;
   editingMode = false;
 
   constructor(
