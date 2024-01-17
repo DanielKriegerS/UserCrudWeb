@@ -11,6 +11,8 @@ import { User } from '../../models/user.model';
 export class UserDetailsComponent implements OnInit {
   user!: User;
   editingMode = false;
+  feedbackMessage: string = '';
+  feedbackType: 'success' | 'error' = 'error';
 
   constructor(
     private route: ActivatedRoute,
@@ -21,40 +23,65 @@ export class UserDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const userId = params['id'];
-      this.userService.getUserById(userId).subscribe(user => {
-        this.user = user;
-      });
+      this.userService.getUserById(userId).subscribe(
+        user => {
+          this.user = user;
+        },
+        error => {
+          console.error('Erro ao obter detalhes do usuário:', error);
+          this.setFeedbackMessage('Erro ao obter detalhes do usuário. Tente novamente mais tarde.');
+        }
+      );
     });
   }
 
-  onDelete(userId: number) {
+  onDelete(userId: string) {
     this.userService.deleteUser(userId).subscribe(
       () => {
-        console.log('Usuário excluído com sucesso!');
+        this.setFeedbackMessage('Usuário excluído com sucesso!', 'success');
         this.router.navigate(['']);
       },
       error => {
         console.error('Erro ao excluir o usuário:', error);
+        this.setFeedbackMessage('Erro ao excluir o usuário. Tente novamente mais tarde.', 'error');
       }
     );
   }
-
+  
   onUpdate(user: User) {
     if (this.editingMode) {
-      this.userService.updateUser(user).subscribe(
-        updatedUser => {
-          console.log('Usuário atualizado com sucesso:', updatedUser);
-          this.editingMode = false; 
-          this.userService.getUserById(updatedUser.id).subscribe(user => {
-            this.user = user;
-          });
-        },
-        error => {
-          console.error('Erro ao atualizar o usuário:', error);
+      if (user.name.trim() !== '') {
+        const phoneNumber = parseInt(user.phone, 10);
+  
+        if (!isNaN(phoneNumber)) {
+          this.userService.updateUser(user).subscribe(
+            updatedUser => {
+              this.setFeedbackMessage('Usuário atualizado com sucesso!', 'success');
+              this.editingMode = false; 
+              this.user = updatedUser;
+            },
+            error => {
+              console.error('Erro ao atualizar o usuário:', error);
+              this.setFeedbackMessage('Erro ao atualizar o usuário. Verifique os dados e tente novamente.', 'error');
+            }
+          );
+        } else {
+          this.setFeedbackMessage('Número de telefone inválido. Certifique-se de inserir apenas números.', 'error');
         }
-      );
+      } else {
+        this.setFeedbackMessage('Nome está vazio.', 'error');
+      }
     } else {
       this.editingMode = true; 
     }
+  }
+  
+  
+  private setFeedbackMessage(message: string, type: 'success' | 'error' = 'error'): void {
+    this.feedbackMessage = message;
+    this.feedbackType = type; 
+    setTimeout(() => {
+      this.feedbackMessage = ''; 
+    }, 5000); 
   }
 }

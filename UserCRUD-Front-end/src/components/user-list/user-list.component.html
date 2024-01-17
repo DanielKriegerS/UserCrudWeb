@@ -27,7 +27,8 @@
         <input type="text" placeholder="Nome" [(ngModel)]="newUser.name" />
         <input type="text" placeholder="Telefone" [(ngModel)]="newUser.phone" />
         <button class="insert-button" (click)="createUser()">Insert</button>
-      </div>
+        <div *ngIf="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</div>
+     </div>
       <div class="copyright">
         © 2023 Designed by: Daniel K.
       </div>

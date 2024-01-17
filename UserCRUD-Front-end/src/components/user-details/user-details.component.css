@@ -47,3 +47,16 @@
     color: #fff;
   }
   
+  .feedback-message {
+    margin-top: 10px;
+    padding: 10px;
+  }
+  
+  .success {
+    color: green;
+  }
+  
+  .error {
+    color: red;
+  }
+  

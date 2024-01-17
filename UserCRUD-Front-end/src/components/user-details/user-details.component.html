@@ -24,5 +24,9 @@
       <button class="btn-delete" (click)="onDelete(user.id)">Deletar</button>
       <button class="btn-update" (click)="onUpdate(user)"> {{ editingMode ? 'Salvar' : 'Atualizar' }}</button>
     </div>
+
+    <div class="feedback-message" *ngIf="feedbackMessage">
+      <p [ngClass]="{'success': feedbackType === 'success', 'error': feedbackType === 'error'}">{{ feedbackMessage }}</p>
+    </div>
   </div>
 </div>

@@ -109,3 +109,8 @@
     font-size: 12px;
     opacity: 0.7;
   } 
+
+  .feedback-message {
+    margin-left: .3em;
+    color: black;
+  }
